@@ -2,9 +2,11 @@ from models.mixins import TimestampMixin
 from sqlalchemy import (Column,String,Numeric,Boolean)
 from .database import Base
 
+# таблица для сохранения данных о балансе и расходах
+
 class Balance(Base,TimestampMixin):
     student_fio = Column(String(50),nullable=False, index=True)                         # фамилия ребенка
-    last = Column(Boolean,nullable=False,index=True)                                    # призак последнего (актуального баланса)
+    last = Column(Boolean,nullable=False,index=True)                                    # признак последнего (актуального баланса)
     balance = Column(Numeric(precision=10,scale=2),nullable=False, index=True)          # значение баланса
     balance_delta = Column(Numeric(precision=10,scale=2),nullable=False)                # изменение баланса относительно предыдущей загрузки (delta)
     meal = Column(Numeric(precision=10,scale=2),nullable=False,default=0)               # затраты на обеды
