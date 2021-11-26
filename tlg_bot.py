@@ -6,6 +6,7 @@ from models.balance import Balance
 from config import TELEGRAM_TOKEN
 from loguru import logger
 from load_data import load
+from datetime import date, datetime, timedelta
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN, parse_mode='HTML')
 
@@ -16,8 +17,7 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN, parse_mode='HTML')
 # - отмены регистрации (/del)
 # а также для запросов:
 # - актуального баланса (/balance),
-# - динамики изменения баланса с указанием изменившихся статей расхода (обеды, экскурсии, прочее) (не сделано) (/hist)
-# - списка должников членами родительского комитета (не сделано) (/dolgi)
+# - динамики изменения баланса с указанием изменившихся статей расхода (обеды, экскурсии, прочее) (/hist)
 
 # для упрощения регистрации решено было не использовать для этого команду бота, а проверять любой отправленный текст 
 # на совпадение с фамилией ребенка в списке загруженных балансов
@@ -72,9 +72,33 @@ def get_balance(session,message):
     else:        
         send_current_config(message) # если пользователь не зарегистрирован, отправка подсказки
 
-@bot.message_handler(commands=['stop'])  # Служебная команда для остановки бота (используется в процессе отладки)
+def num_with_sign(num):
+    return ("+" if num>0 else "") + f"{num}"
+
+def short_date(dt):
+    return f"{dt.day}.{dt.month}"
+
+@bot.message_handler(commands=['hist']) # запрос истории изменений
 @with_session
-def stop_bot(session,message):
+def get_hist(session,message):
+    current=get_current_data(message.from_user.id) # загрузка данных регистрации
+    logger.info(f'/hist {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}') # телеметрия в журнал
+    if current:
+        hist=session.query(Balance).filter_by(student_fio = current.student_fio).filter(Balance.loaded_at > datetime.utcnow()- timedelta(days = 14) )  # запрос последнего загруженного баланса
+        if hist:
+            reply_text=f"{current.student_fio}, история изменений:\n"
+            for row in hist:    
+                reply_text += short_date(row.loaded_at.date())+f": {row.balance}"+" (изм. "+num_with_sign(row.balance_delta)+", расходы: "
+                reply_text += ("обеды "+ num_with_sign(row.meal_delta)+"," if row.meal_delta != 0 else "")
+                reply_text += ("экск. "+ num_with_sign(row.excursion_delta)+"," if row.excursion_delta != 0 else "")
+                reply_text += ("проч. "+ num_with_sign(row.other_delta) if row.other_delta != 0 else "")+")\n"
+            reply_text=reply_text.replace(',)',')')
+            bot.reply_to(message, reply_text)
+    else:        
+        send_current_config(message) # если пользователь не зарегистрирован, отправка подсказки
+
+@bot.message_handler(commands=['stop'])  # Служебная команда для остановки бота (используется в процессе отладки)
+def stop_bot(message):
     current=get_current_data(message.from_user.id)
     if current: 
         if current.admin: # проверка, является ли запросивший остановку бота админом.
