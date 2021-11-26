@@ -1,1 +1,0 @@
-select * from balances order by student_fio,loaded_at
