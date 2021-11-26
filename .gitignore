@@ -1,6 +1,6 @@
 config.py
 test_email.py
-models\all_debtor.py
+all_debtor.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
