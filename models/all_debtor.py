@@ -6,6 +6,8 @@ from .balance import Balance
 from .student import Student
 from sqlalchemy_utils.view import create_view
 
+# Для новых функций. Игнорировать!!!
+
 class All_debtor(Base):
     __table__ = create_view(
         name='all_debtors',
