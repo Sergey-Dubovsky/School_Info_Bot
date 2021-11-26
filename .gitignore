@@ -1,6 +1,5 @@
 config.py
 test_email.py
-all_debtor.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
