@@ -5,9 +5,11 @@ from config import CONN_STR
 
 class Base:
     id = Column(Integer, primary_key=True)
+
     @declared_attr
     def __tablename__(cls):
         return f"{cls.__name__.lower()}s"
+
 
 engine = create_engine(CONN_STR, echo=False, pool_recycle=3600)
 

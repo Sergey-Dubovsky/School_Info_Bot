@@ -72,6 +72,25 @@ def get_balance(session,message):
     else:        
         send_current_config(message) # если пользователь не зарегистрирован, отправка подсказки
 
+@bot.message_handler(commands=['dolgi']) # запрос списка должников
+@with_session
+def get_dolgi(session,message):
+    current=get_current_data(message.from_user.id) # загрузка данных регистрации
+    logger.info(f'/dolgi {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}') # телеметрия в журнал
+    if current:
+        if current.admin or current.rk:
+            load() # обновление балансов из Google Docs
+            dolgi=session.query(Balance).filter_by(last=True).filter(Balance.balance<0).all()  # запрос списка должников
+            if dolgi:
+                reply_text="<b>Должники</b>:\n"
+                for row in dolgi:    
+                    reply_text += f"{row.student_fio}: {row.balance}\n"
+                bot.reply_to(message, reply_text)
+        else:    
+            bot.reply_to(message, 'Информация о всех должниках доступна только членам родительского комитета!')
+    else:        
+        send_current_config(message) # если пользователь не зарегистрирован, отправка подсказки
+
 def num_with_sign(num):
     return ("+" if num>0 else "") + f"{num}"
 
@@ -84,7 +103,7 @@ def get_hist(session,message):
     current=get_current_data(message.from_user.id) # загрузка данных регистрации
     logger.info(f'/hist {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}') # телеметрия в журнал
     if current:
-        hist=session.query(Balance).filter_by(student_fio = current.student_fio).filter(Balance.loaded_at > datetime.utcnow()- timedelta(days = 14) )  # запрос последнего загруженного баланса
+        hist=session.query(Balance).filter_by(student_fio = current.student_fio).filter(Balance.loaded_at > datetime.utcnow()- timedelta(days = 14) ).all()  # запрос последнего загруженного баланса
         if hist:
             reply_text=f"{current.student_fio}, история изменений:\n"
             for row in hist:    

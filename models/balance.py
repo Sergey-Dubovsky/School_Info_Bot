@@ -1,21 +1,40 @@
 from models.mixins import TimestampMixin
-from sqlalchemy import (Column,String,Numeric,Boolean)
+from sqlalchemy import Column, String, Numeric, Boolean
 from .database import Base
 
 # таблица для сохранения данных о балансе и расходах
 
-class Balance(Base,TimestampMixin):
-    student_fio = Column(String(50),nullable=False, index=True)                         # фамилия ребенка
-    last = Column(Boolean,nullable=False,index=True)                                    # признак последнего (актуального баланса)
-    balance = Column(Numeric(precision=10,scale=2),nullable=False, index=True)          # значение баланса
-    balance_delta = Column(Numeric(precision=10,scale=2),nullable=False)                # изменение баланса относительно предыдущей загрузки (delta)
-    meal = Column(Numeric(precision=10,scale=2),nullable=False,default=0)               # затраты на обеды
-    meal_delta = Column(Numeric(precision=10,scale=2),nullable=False,default=0)         # затраты на обеды (изменение (delta))
-    excursion = Column(Numeric(precision=10,scale=2),nullable=False,default=0)          # затраты на экскурсии
-    excursion_delta = Column(Numeric(precision=10,scale=2),nullable=False,default=0)    # затраты на экскурсии (изменение (delta))
-    other = Column(Numeric(precision=10,scale=2),nullable=False,default=0)              # затраты прочие           
-    other_delta = Column(Numeric(precision=10,scale=2),nullable=False,default=0)        # затраты прочие (изменение (delta))           
-    
+
+class Balance(Base, TimestampMixin):
+    student_fio = Column(String(50), nullable=False, index=True)  # фамилия ребенка
+    last = Column(
+        Boolean, nullable=False, index=True
+    )  # признак последнего (актуального баланса)
+    balance = Column(
+        Numeric(precision=10, scale=2), nullable=False, index=True
+    )  # значение баланса
+    balance_delta = Column(
+        Numeric(precision=10, scale=2), nullable=False
+    )  # изменение баланса относительно предыдущей загрузки (delta)
+    meal = Column(
+        Numeric(precision=10, scale=2), nullable=False, default=0
+    )  # затраты на обеды
+    meal_delta = Column(
+        Numeric(precision=10, scale=2), nullable=False, default=0
+    )  # затраты на обеды (изменение (delta))
+    excursion = Column(
+        Numeric(precision=10, scale=2), nullable=False, default=0
+    )  # затраты на экскурсии
+    excursion_delta = Column(
+        Numeric(precision=10, scale=2), nullable=False, default=0
+    )  # затраты на экскурсии (изменение (delta))
+    other = Column(
+        Numeric(precision=10, scale=2), nullable=False, default=0
+    )  # затраты прочие
+    other_delta = Column(
+        Numeric(precision=10, scale=2), nullable=False, default=0
+    )  # затраты прочие (изменение (delta))
+
     def __str__(self):
         return (
             f"{self.__class__.__name__}(id={self.id}, "
@@ -29,4 +48,3 @@ class Balance(Base,TimestampMixin):
 
     def __repr__(self):
         return str(self)
-
