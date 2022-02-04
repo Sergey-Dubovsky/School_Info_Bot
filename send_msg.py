@@ -4,8 +4,7 @@ from models.student import Student
 from notifiers.core import get_notifier
 from config import TELEGRAM_TOKEN
 
-# Модуль рассылки уведомлений в случае если баланс меньше заданного предела
-# Запускается по cron
+# Модуль ручной рассылки информационных сообщений подписчкам
 
 
 @with_session
