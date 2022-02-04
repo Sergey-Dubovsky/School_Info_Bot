@@ -80,12 +80,14 @@ def get_dolgi(session,message):
     if current:
         if current.admin or current.rk:
             load() # обновление балансов из Google Docs
-            dolgi=session.query(Balance).filter_by(last=True).filter(Balance.balance<0).all()  # запрос списка должников
+            dolgi=session.query(Balance).filter_by(last=True).filter(Balance.balance<0).order_by(Balance.balance).all()  # запрос списка должников
             if dolgi:
+                sum=0
                 reply_text="<b>Должники</b>:\n"
                 for row in dolgi:    
+                    sum+=row.balance
                     reply_text += f"{row.student_fio}: {row.balance}\n"
-                bot.reply_to(message, reply_text)
+                bot.reply_to(message, f"<b>Общая сумма долгов</b>:\n{sum}\n\n"+reply_text)
         else:    
             bot.reply_to(message, 'Информация о всех должниках доступна только членам родительского комитета!')
     else:        
