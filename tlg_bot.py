@@ -97,7 +97,7 @@ def num_with_sign(num):
     return ("+" if num>0 else "") + f"{num}"
 
 def short_date(dt):
-    return f"{dt.day}.{dt.month}"
+    return f"{dt.day:02d}.{dt.month:02d}"
 
 @bot.message_handler(commands=['hist']) # запрос истории изменений
 @with_session
