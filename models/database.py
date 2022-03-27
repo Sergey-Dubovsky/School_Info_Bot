@@ -11,7 +11,8 @@ class Base:
         return f"{cls.__name__.lower()}s"
 
 
-engine = create_engine(CONN_STR, echo=False, pool_recycle=3600)
+# engine = create_engine(CONN_STR, echo=False, pool_recycle=3600)
+engine = create_engine(CONN_STR, echo=False)
 
 Base = declarative_base(bind=engine, cls=Base)
 

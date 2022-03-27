@@ -1,6 +1,8 @@
 config.py
 test_email.py
 alembic.ini
+balanses_insert.sql
+students.sql
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

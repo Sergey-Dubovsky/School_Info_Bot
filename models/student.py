@@ -21,7 +21,7 @@ class Student(Base):
         Integer, nullable=False, default=500
     )  # минимальный баланс ниже которого шлется уведомление
     telegram_id = Column(
-        String(10), nullable=False, index=True, unique=True
+        Integer, nullable=False, index=True, unique=True
     )  # chat_id пользователя из телеграмма
     last_balance = Column(
         Numeric(precision=10, scale=2), nullable=False, index=True, default=0
