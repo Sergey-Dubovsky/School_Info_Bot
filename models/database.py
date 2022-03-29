@@ -12,7 +12,7 @@ class Base:
 
 
 # engine = create_engine(CONN_STR, echo=False, pool_recycle=3600)
-engine = create_engine(CONN_STR, echo=False)
+engine = create_engine(CONN_STR, echo=False, pool_recycle=3600)
 
 Base = declarative_base(bind=engine, cls=Base)
 
