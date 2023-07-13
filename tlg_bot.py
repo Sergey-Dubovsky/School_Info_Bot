@@ -4,9 +4,10 @@ from with_session import with_session
 from models.student import Student
 from models.balance import Balance
 from config import TELEGRAM_TOKEN
-from loguru import logger
+# from loguru import logger
 from load_data import load
 from datetime import date, datetime, timedelta
+from save_log import save_log
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN, parse_mode="HTML")
 
@@ -35,6 +36,8 @@ def send_welcome(message):
 @with_session
 def change_limit(session, message):
     current = get_current_data(message.from_user.id)  # загрузка настроек из students
+    
+    save_log("/limit",message.from_user.id,message.from_user.first_name,message.from_user.last_name,message.from_user.username)
 
     if current:
         try:
@@ -61,6 +64,8 @@ def change_limit(session, message):
 @with_session
 def del_reg(session, message):
     current = get_current_data(message.from_user.id)
+    save_log("/del",message.from_user.id,message.from_user.first_name,message.from_user.last_name,message.from_user.username)
+
     if current:
         session.query(Student).filter_by(telegram_id=message.from_user.id).delete(
             synchronize_session="fetch"
@@ -75,9 +80,11 @@ def del_reg(session, message):
 @with_session
 def get_balance(session, message):
     current = get_current_data(message.from_user.id)  # загрузка данных регистрации]
-    logger.info(
-        f"/balance {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}"
-    )  # телеметрия в журнал
+    # logger.info(
+    #     f"/balance {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}"
+    # )  # телеметрия в журнал
+    save_log("/balance",message.from_user.id,message.from_user.first_name,message.from_user.last_name,message.from_user.username)
+
     if current:
         load()  # обновление балансов из Google Docs
         balance = (
@@ -100,9 +107,11 @@ def get_balance(session, message):
 @with_session
 def get_dolgi(session, message):
     current = get_current_data(message.from_user.id)  # загрузка данных регистрации
-    logger.info(
-        f"/dolgi {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}"
-    )  # телеметрия в журнал
+    # logger.info(
+    #     f"/dolgi {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}"
+    # )  # телеметрия в журнал
+    save_log("/dolgi",message.from_user.id,message.from_user.first_name,message.from_user.last_name,message.from_user.username)
+
     if current:
         if current.admin or current.rk:
             load()  # обновление балансов из Google Docs
@@ -145,14 +154,16 @@ def short_date(dt):
 @with_session
 def get_hist(session, message):
     current = get_current_data(message.from_user.id)  # загрузка данных регистрации
-    logger.info(
-        f"/hist {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}"
-    )  # телеметрия в журнал
+    # logger.info(
+    #     f"/hist {message.from_user.id} {message.from_user.first_name} {message.from_user.last_name} {message.from_user.username}"
+    # )  # телеметрия в журнал
+    save_log("/hist",message.from_user.id,message.from_user.first_name,message.from_user.last_name,message.from_user.username)
+
     if current:
         hist = (
             session.query(Balance)
             .filter_by(student_fio=current.student_fio)
-            .filter(Balance.loaded_at > datetime.utcnow() - timedelta(days=14))
+            .filter(Balance.loaded_at > datetime.utcnow() - timedelta(days=30))
             .all()
         )  # запрос последнего загруженного баланса
         if hist:
@@ -182,6 +193,8 @@ def get_hist(session, message):
                 ) + ")\n"
             reply_text = reply_text.replace(",)", ")")
             bot.reply_to(message, reply_text)
+        else:    
+            bot.reply_to(message, "За посление 30 дней баланс не изменялся.")
     else:
         send_current_config(
             message
@@ -225,6 +238,8 @@ def echo_all(session, message):  # регистрация
                     )
                 )
                 session.commit()
+                save_log("/reg",message.from_user.id,message.from_user.first_name,message.from_user.last_name,message.from_user.username)
+
                 bot.reply_to(message, "Регистрация успешно завершена!")
                 get_balance(message)  # отправка текущего баланса
             else:
@@ -267,8 +282,8 @@ def send_current_config(
 
 
 def main():
-    # logger.add("/volume1/Git/sib_prod/file_{time}.log")
-    logger.add("file_{time}.log")
+    # # logger.add("/volume1/Git/sib_prod/file_{time}.log")
+    # logger.add("file_{time}.log")
     bot.infinity_polling()
 
 

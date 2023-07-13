@@ -19,9 +19,37 @@ def get_table():
             "Экскурсии" as excursion,
             "Расход"-"ОБЕДЫ"-"Экскурсии" as other
         FROM
+            "https://docs.google.com/spreadsheets/d/1ubFfzw7mVx4Q5y75znAP2cMmwe7svnoXjIu_CjzpCNk"
+    """,
+        headers=1,
+    )
+
+def get_table1():
+    conn = connect()
+    return conn.execute(
+        f"""
+        SELECT 
+            "ФИО ученика"  as student_fio, 
+            "ОСТАТОК" as balance,
+            "ОБЕДЫ" as meal,
+            "Экскурсии" as excursion,
+            "Расход"-"ОБЕДЫ"-"Экскурсии" as other
+        FROM
             "{GDOCS_URL}"
     """,
         headers=1,
+    )
+
+def get_table2():
+    conn = connect()
+    return conn.execute(
+        f"""
+        SELECT 
+            *
+        FROM
+            "{GDOCS_URL}"
+    """,
+        headers=4,
     )
 
 
@@ -87,8 +115,10 @@ def load():
 
 
 def main():
-    load()
-    print('Ok')
+    data=get_table()
+    for row in data:
+        print(row)
+
 
 
 if __name__ == "__main__":

@@ -15,3 +15,12 @@ class TimestampMixin:
         default=datetime.utcnow,
         server_default=func.now(),
     )
+
+class LogTimestampMixin:
+    datetime = Column(
+        DateTime,
+        nullable=False,
+        index=True,
+        default=datetime.utcnow,
+        server_default=func.now(),
+    )
